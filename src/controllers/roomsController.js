@@ -20,6 +20,24 @@ export default class RoomsController {
         }
     }
 
+    speakAnswer(socket, { answer, user}) {
+        const currentUser = this.#users.get(user.id)
+        const updatedUser = new Attendee({
+            ...currentUser,
+            isSpeaker : answer,
+        })
+    }
+
+    speakRequest(socket) {
+        //front  vai mandar evento para falar pro dono que alguém quer falar
+        const userId = socket.id
+        const user = this.#users.get(userId)
+        const roomId = user.roomId
+        const owner = this.rooms.get(roomId)?.owner
+        socket.to(owner.id).emit(constants.event.SPEAK_REQUEST, user);
+
+    }
+
     notifyRoomSubscribers(rooms) {
         const event = constants.event.LOBBY_UPDATED
         this.roomsPubSub.emit(event,[...rooms.values()])
