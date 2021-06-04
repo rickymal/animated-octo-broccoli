@@ -21,11 +21,25 @@ export default class RoomsController {
     }
 
     speakAnswer(socket, { answer, user}) {
+        const userId = user.id
         const currentUser = this.#users.get(user.id)
         const updatedUser = new Attendee({
             ...currentUser,
             isSpeaker : answer,
         })
+        this.#users.set(user.id,updatedUser)
+        const roomId = user.roomId
+        const room = this.rooms.get(roomId)
+        const userOnRoom = [...room.users.values()].find(({id}) => id === user.id)
+        room.users.delete(userOnRoom)
+        room.users.add(updatedUser)
+        this.rooms.set(roomId, room)
+
+
+        // reenviar a mensagem para o usuário
+        socket.emit(constants.event.UPGRADE_USER_PERMISSION,updatedUser)
+        this.#notifyUserProfileUpgrade(socket, roomId, updatedUser)
+        
     }
 
     speakRequest(socket) {
