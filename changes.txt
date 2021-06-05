@@ -1,3 +1,4 @@
 changes at front-end
 [2] added a front-end receiver microphone
 [3] added some another things
+[4] finished microphone
